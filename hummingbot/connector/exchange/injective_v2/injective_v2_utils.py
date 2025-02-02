@@ -134,6 +134,50 @@ class InjectiveMainnetNetworkMode(InjectiveNetworkMode):
     def rate_limits(self) -> List[RateLimit]:
         return CONSTANTS.PUBLIC_NODE_RATE_LIMITS
 
+class InjectiveCustomChainAndPublicIndexerNetworkMode(InjectiveNetworkMode):
+    lcd_endpoint: str = Field(
+        default=...,
+        client_data=ClientFieldData(
+            prompt=lambda cm: ("Enter the network lcd_endpoint"), prompt_on_new=True
+        ),
+    )
+    tm_websocket_endpoint: str = Field(
+        default=...,
+        client_data=ClientFieldData(
+            prompt=lambda cm: ("Enter the network tm_websocket_endpoint"),
+            prompt_on_new=True,
+        ),
+    )
+    grpc_endpoint: str = Field(
+        default=...,
+        client_data=ClientFieldData(
+            prompt=lambda cm: ("Enter the network grpc_endpoint"), prompt_on_new=True
+        ),
+    )
+    chain_stream_endpoint: str = Field(
+        default=...,
+        client_data=ClientFieldData(
+            prompt=lambda cm: ("Enter the network chain_stream_endpoint"),
+            prompt_on_new=True,
+        ),
+    )
+
+    class Config:
+        title = "mainnet_custom_chain_and_public_indexer"
+
+    def network(self) -> Network:
+        return Network.custom_chain_and_public_indexer_mainnet(
+            self.lcd_endpoint,
+            self.tm_websocket_endpoint,
+            self.grpc_endpoint,
+            self.chain_stream_endpoint,
+        )
+
+    def use_secure_connection(self) -> bool:
+        return True
+
+    def rate_limits(self) -> List[RateLimit]:
+        return CONSTANTS.PUBLIC_NODE_RATE_LIMITS
 
 class InjectiveTestnetNetworkMode(InjectiveNetworkMode):
     testnet_node: str = Field(
@@ -253,6 +297,7 @@ class InjectiveCustomNetworkMode(InjectiveNetworkMode):
 
 NETWORK_MODES = {
     InjectiveMainnetNetworkMode.Config.title: InjectiveMainnetNetworkMode,
+    InjectiveCustomChainAndPublicIndexerNetworkMode.Config.title: InjectiveCustomChainAndPublicIndexerNetworkMode,
     InjectiveTestnetNetworkMode.Config.title: InjectiveTestnetNetworkMode,
     InjectiveCustomNetworkMode.Config.title: InjectiveCustomNetworkMode,
 }
